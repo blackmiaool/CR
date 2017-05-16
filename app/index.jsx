@@ -87,8 +87,10 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         setHistory(props.history);
+        //          <Route path= '/login' component= {Login} />
+        //                        <Route path= '/signUp' component= {SignUp} />
     }
-    render() {      
+    render() {
         return (
             <MuiThemeProvider muiTheme={getMuiTheme()}>
                 <div className = 'container'>

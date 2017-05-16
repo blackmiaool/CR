@@ -1,5 +1,6 @@
 const  webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const path=require("path");
 module.exports = {
     // entry:{
     //     bundle:'./index.jsx',
@@ -11,9 +12,11 @@ module.exports = {
     },
     watch:true,
     resolve:{
-        alias:{
-            //...
-        }
+        alias: {
+            react: path.resolve(path.join(__dirname, 'src', 'react')),
+            'react-dom': path.resolve(path.join(__dirname, 'src', 'react-dom')),
+            //            'react-router': path.resolve(path.join(__dirname, 'react-router', 'es6')),
+        },
     },
     module: {
         loaders: [
