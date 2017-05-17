@@ -21,6 +21,7 @@ import '../less/chatarea.less'
 
 class ChatArea extends React.Component {
     constructor(props){
+        console.log('props1',props)
         super(props);
         this.preScroll = 0;
         this.isMount = false;
@@ -315,6 +316,7 @@ class ChatArea extends React.Component {
         }
     }
     render(){
+        console.log('this.props',this.props)
         let user = this.props.user.toJS();
         let messages = this.props.messages.toJS() || [];
         if(!api.timestamp && messages[messages.length -1]){

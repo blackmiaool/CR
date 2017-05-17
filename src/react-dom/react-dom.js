@@ -141,25 +141,25 @@ function equals(x, y) {
             return false;
         }
         switch (typeof (y[p])) {
-        case 'object':
-            if (y[p] instanceof Date) {
-                if (y[p].getTime() !== x[p].getTime()) {
+            case 'object':
+                if (y[p] instanceof Date) {
+                    if (y[p].getTime() !== x[p].getTime()) {
+                        return false;
+                    }
+                }
+                if (!equals(x[p], y[p])) {
+                    return false
+                };
+                break;
+            case 'function':
+                if (typeof (x[p]) == 'undefined' || (p != 'equals')) {
+                    return false;
+                };
+                break;
+            default:
+                if (y[p] != x[p]) {
                     return false;
                 }
-            }
-            if (!equals(x[p], y[p])) {
-                return false
-            };
-            break;
-        case 'function':
-            if (typeof (x[p]) == 'undefined' || (p != 'equals')) {
-                return false;
-            };
-            break;
-        default:
-            if (y[p] != x[p]) {
-                return false;
-            }
         }
     }
 
@@ -248,16 +248,24 @@ function getChildren(parent, children, old = {}, owner, context) {
 
                 } else {
                     if (old[key] instanceof ReactCompositeComponentWrapper) {
+                        console.log(old[key]._currentElement, old[key]._currentElement.type, child.type)
                         if (child && old[key]._currentElement.type === child.type) {
+                            console.log("if")
                             lastNode = old[key].updateProps(child.props, context);
                         } else {
+                            console.log("else")
                             if (!child) {
                                 old[key].remove();
                             }
-                            lastNode = update(old[key]._hostNode, child, {
-                                componentRef: old[key]._instance,
+                            const dom = create(child, {
+                                owner,
                                 context
                             });
+                            lastNode.parentElement.replaceChild(dom,lastNode);
+//                            lastNode = update(old[key]._hostNode, child, {
+//                                componentRef: old[key]._instance,
+//                                context
+//                            });
                         }
                     } else {
                         log(3)
@@ -639,7 +647,7 @@ function create(element, {
     owner,
     context
 } = {}) {
-    log('create', element, arguments[1])
+//    console.log('create', element, arguments[1])
 
     if (!React.isValidElement(element)) { //comment
         const dom = document.createComment("react-empty");
@@ -765,9 +773,13 @@ function update(dom, element, {
 
     function createAndReplace() {
         const newDom = create(element, {
-            context
+            context,
+            owner:(componentRef||{})._reactInternalInstance
         });
-        dom.parentElement.replaceChild(newDom, dom);
+        if(dom.parentElement){
+            dom.parentElement.replaceChild(newDom, dom);    
+        }
+        
         return newDom;
     }
     if (isHost) {
@@ -790,9 +802,10 @@ function update(dom, element, {
 
             if (found) {
                 if (lastOwner) {
+                    console.log('lastOwner')
                     return lastOwner.updateProps(element.props, context);
                 } else {
-
+                    return createAndReplace();
                 }
             } else {
                 log("else");
@@ -808,28 +821,28 @@ function update(dom, element, {
 
     }
 
-    function replace() {
-        const newDom = create(element, {
-            componentRef,
-            context
-        });
-        if (dom.parentElement) {
-            dom.parentElement.replaceChild(newDom, dom);
-        }
-
-        return newDom;
-    }
+//    function replace() {
+//        const newDom = create(element, {
+//            owner:componentRef._reactInternalInstance,
+//            context
+//        });
+//        if (dom.parentElement) {
+//            dom.parentElement.replaceChild(newDom, dom);
+//        }
+//
+//        return newDom;
+//    }
     if (forceRender || typeof element0 !== typeof element) {
-        return replace();
+        return createAndReplace();
     }
 
     if (React.isValidElement(element0) && React.isValidElement(element)) {
         if (element.type !== element0.type) {
-            return replace();
+            return createAndReplace();
         }
     } else {
         if (element !== element0) {
-            return replace();
+            return createAndReplace();
         }
     }
 
@@ -889,11 +902,20 @@ function render(element, target) {
     //    const targetInstance = target.childNodes[0][internalInstanceKey];
     //    log(targetInstance)
 }
+
+function findDOMNode(component) {
+    if (!component) {
+        return;
+    }
+    return component._reactInternalInstance._hostNode;
+}
 const exports = {
-    render
+    render,
+    findDOMNode
 }
 export {
-    render
+    render,
+    findDOMNode
 };
 export default exports;
 //window.ReactDOM = exports;

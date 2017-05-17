@@ -76,7 +76,7 @@ function isValidElement(element) {
 const PropTypes = propTypes.PropTypes
 
 function cloneElement(element, config, ...children) {
-    console.log('cloneElement', arguments);
+//    console.log('cloneElement', arguments);
     if (!isValidElement(element)) {
         return element;
     }
@@ -95,7 +95,7 @@ function cloneElement(element, config, ...children) {
         delete element.props.children;
     }
 
-    console.log('element', element);
+//    console.log('element', element);
     //    const props = Object.assign({}, element.props);
     //
     //    const owner = element._owner;
