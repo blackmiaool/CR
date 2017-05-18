@@ -2,12 +2,6 @@ import createElement from "./createElement.js";
 import Children from "./children.js";
 import propTypes from 'prop-types'
 
-let isAsyncSetState = false;
-
-function asyncSetState(value) {
-    isAsyncSetState = value;
-}
-
 const createClassStaticKeys = ['getDefaultProps', 'getInitialState', 'propTypes', 'statics']
 
 function createClass(obj) {
@@ -33,31 +27,23 @@ class Component {
         this.context = context
     }
     setWrapper() {
-
+        console.log(1)
     }
     forceUpdate() {
-        const instance = this._reactInternalInstance;
-        instance.handleStateQueue(this.state, this.props);
+        const wrapper = this._reactInternalInstance;
+        wrapper.doUpdate(this.state, this.props);
     }
     setState(updater, cb) {
-        const instance = this._reactInternalInstance;
-        if (instance.setStateTimeout) {
-            clearTimeout(instance.setStateTimeout);
-        }
-        instance.stateQueue.push({
+
+        const wrapper = this._reactInternalInstance;
+      
+        wrapper.stateQueue.push({
             updater,
             cb
         });
-        const execQueue = () => {
-            instance.setStateTimeout = 0;
-            instance.handleStateQueue(this.state, this.props);
 
-        };
-        if (isAsyncSetState) {
-            instance.setStateTimeout = setTimeout(execQueue);
-
-        } else {
-            execQueue();
+        if (!wrapper.isAsyncSetState) {            
+            wrapper.handleStateQueue(this.props, true);
         }
 
     }
@@ -118,7 +104,6 @@ function cloneElement(element, config, ...children) {
 let exports = {
     createElement,
     Component,
-    asyncSetState,
     Children,
     PropTypes,
     createClass,
@@ -130,7 +115,6 @@ let exports = {
 export {
     createElement,
     Component,
-    asyncSetState,
     Children,
     PropTypes,
     createClass,

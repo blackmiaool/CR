@@ -20,8 +20,7 @@ import '../less/scroll.less'
 import '../less/chatarea.less'
 
 class ChatArea extends React.Component {
-    constructor(props){
-        console.log('props1',props)
+    constructor(props){        
         super(props);
         this.preScroll = 0;
         this.isMount = false;
@@ -83,6 +82,7 @@ class ChatArea extends React.Component {
         }
     }
     componentDidMount(){
+        console.log('componentDidMount',this);
         this.isMount = true;
         let messageArea = this.messageArea,
             gif = this.gif,
@@ -200,6 +200,7 @@ class ChatArea extends React.Component {
         }
     }
     componentWillUnmount(){
+        console.log('componentWillUnmountt');
         this.isMount = false;
     }
     pullStart(startY){
@@ -315,8 +316,7 @@ class ChatArea extends React.Component {
 
         }
     }
-    render(){
-        console.log('this.props',this.props)
+    render(){        
         let user = this.props.user.toJS();
         let messages = this.props.messages.toJS() || [];
         if(!api.timestamp && messages[messages.length -1]){

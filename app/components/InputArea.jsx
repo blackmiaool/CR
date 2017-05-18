@@ -14,7 +14,9 @@ class InputArea extends React.Component{
     }
     componentWillReceiveProps(nextProps){
         let input = this.refs.input;
+        console.trace('nextProps',nextProps.expression)
         if(!Immutable.is(this.props.expression, nextProps.expression)){
+            console.log("add",nextProps.expression.get('emoji'),input);
             input.value += nextProps.expression.get('emoji');
             this.refs.input.focus();
         }

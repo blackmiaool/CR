@@ -143,8 +143,7 @@ export const setUserInfo = (user) => {
         user
     }
 }
-export const getInitUserInfo = (info) => {
-    console.log("get!!!");
+export const getInitUserInfo = (info) => {  
     return (dispatch, getState) => {
         return new Promise((resolve) => {
             socket.emit('getInfo', info, (body) => {
@@ -435,8 +434,7 @@ export const SHOW_INFO_CARD = 'SHOW_INFO_CARD';
 export const SET_USER_CARD_INFO = 'SET_USER_CARD_INFO';
 export const HIDDEN_INFO_CARD = 'HIDDEN_INFO_CARD';
 export const GET_USER_INFO = 'GET_USER_INFO';
-export const getUserInfo = (nickname) => {
-    console.log('!!!getUserInfo')
+export const getUserInfo = (nickname) => {   
     return (dispatch, getState) => {
         const state = getState().toJS();
         dispatch(setSnackbarState({

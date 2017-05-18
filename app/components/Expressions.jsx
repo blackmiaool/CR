@@ -38,7 +38,7 @@ class Expressions extends React.Component{
     render(){
         const isShow = this.props.expressionState;
         return (
-            <ReactCSSTransitionGroup
+            <div
                 component = 'div'
                 transitionName = 'animationBox'
                 transitionEnterTimeout = {400}
@@ -58,8 +58,9 @@ class Expressions extends React.Component{
                     </div>
                     :null
                 }
-            </ReactCSSTransitionGroup>
+            </div>
         );
+//        ReactCSSTransitionGroup
     }
 }
 Expressions.defaultProps = {

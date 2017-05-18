@@ -62,6 +62,7 @@ class Sign extends React.Component{
         }
     }
     handleClick(){
+        console.log("handle");
         this.setState({btnDisable: true});
         let nickname = this.refs.nickname.value.trim(),
             password = this.refs.password.value.trim(),

@@ -17,7 +17,7 @@ function mapStateToProps(state) {
     let messagesFrom = state.getIn(['userState', 'isPrivate']) ? 'privateMessages' : 'messages';
     let curRoom = state.getIn(['userState', 'curRoom']);
     let messages = state.getIn([messagesFrom, curRoom]) || Immutable.fromJS([]);
-    console.log('mapStateToProps', state.get('userState'), state, state.get('userState'));
+    
     return {
         messages: messages,
         user: state.get('userState'),
