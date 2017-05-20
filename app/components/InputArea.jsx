@@ -1,36 +1,44 @@
-import React, {PropTypes} from 'react'
+import React, {
+    PropTypes
+} from 'react'
 import Immutable from 'immutable'
 import api from '../plugins'
 
 import '../less/inputarea.less'
 
-import { sendMessage, sendPrivateMessage, sendImage } from '../actions'
-import ajaxHandle, { UPLOAD_URL, HISTORY_URL } from '../util/ajax.js'
+import {
+    sendMessage,
+    sendPrivateMessage,
+    sendImage
+} from '../actions'
+import ajaxHandle, {
+    UPLOAD_URL,
+    HISTORY_URL
+} from '../util/ajax.js'
 
 
-class InputArea extends React.Component{
-    constructor(props){
+class InputArea extends React.Component {
+    constructor(props) {
         super(props);
     }
-    componentWillReceiveProps(nextProps){
+    componentWillReceiveProps(nextProps) {
         let input = this.refs.input;
-        console.trace('nextProps',nextProps.expression)
-        if(!Immutable.is(this.props.expression, nextProps.expression)){
-            console.log("add",nextProps.expression.get('emoji'),input);
+        if (!Immutable.is(this.props.expression, nextProps.expression)) {
+            console.log("add", nextProps.expression.get('emoji'), input);
             input.value += nextProps.expression.get('emoji');
             this.refs.input.focus();
         }
     }
-    componentDidMount(){
+    componentDidMount() {
         document.addEventListener('keydown', (e) => {
-            if(e.keyCode === 13 && e.target === this.refs.input){
+            if (e.keyCode === 13 && e.target === this.refs.input) {
                 this.handleClick();
             }
         })
     }
-    handleClick(){
+    handleClick() {
         let input = this.refs.input;
-        if(!input) return;
+        if (!input) return;
         let user = this.props.user.toJS(),
             addPrivateMessage = this.props.addPrivateMessage,
             addMessage = this.props.addMessage,
@@ -38,34 +46,39 @@ class InputArea extends React.Component{
             mergePrivateMessage = this.props.mergePrivateMessage,
             sendPrivateMessageWithPre = this.props.sendPrivateMessageWithPre,
             sendMessageWithPre = this.props.sendMessageWithPre,
-            content = (input.value.trim()).slice(0,150);
-        if(content !== ''){
+            content = (input.value.trim()).slice(0, 150);
+        if (content !== '') {
             input.value = '';
             input.focus();
             let message = {
-                nickname:user.nickname,
+                nickname: user.nickname,
                 room: user.curRoom,
-                content:content,
-                type:'textMessage'
+                content: content,
+                type: 'textMessage'
             }
-            
-            if(api.getPluginMessageInfo({content,from:{username:user.nickname}})) message.type = 'pluginMessage';
-            user.isPrivate?
-            sendPrivateMessageWithPre(message).then((timestamp)=>{
-                return mergePrivateMessage({
-                    room: user.curRoom,
-                    timestamp
+
+            if (api.getPluginMessageInfo({
+                    content,
+                    from: {
+                        username: user.nickname
+                    }
+                })) message.type = 'pluginMessage';
+            user.isPrivate ?
+                sendPrivateMessageWithPre(message).then((timestamp) => {
+                    return mergePrivateMessage({
+                        room: user.curRoom,
+                        timestamp
+                    });
+                }) :
+                sendMessageWithPre(message).then((timestamp) => {
+                    return mergeMessage({
+                        room: user.curRoom,
+                        timestamp
+                    });
                 });
-            })
-            :sendMessageWithPre(message).then((timestamp)=>{
-                return mergeMessage({
-                    room: user.curRoom,
-                    timestamp
-                }); 
-            });
         }
     }
-    handlePaste(e){
+    handlePaste(e) {
         let items = e.clipboardData.items,
             user = this.props.user.toJS(),
             timestamp = new Date().getTime(),
@@ -76,44 +89,44 @@ class InputArea extends React.Component{
         if (e.clipboardData.types.indexOf('Files') !== -1) {
             for (let i = 0; i < items.length; i++) {
                 let item = items[i];
-                if( item && item.kind === 'file' && item.type.match(/^image\/\w+/) ){
+                if (item && item.kind === 'file' && item.type.match(/^image\/\w+/)) {
                     let formdata = new FormData(),
                         imgFile = item.getAsFile();
-                    if(imgFile.size > 3*1024*1024){
+                    if (imgFile.size > 3 * 1024 * 1024) {
                         alert('文件过大');
-                    } else{
-                        formdata.append('smfile',imgFile);
-                        ajaxHandle.request('post',UPLOAD_URL,formdata,null)
-                        .then((resault)=>{
-                            if(resault.code === 'success'){
-                                let message = {
-                                    content:resault.data.url,
-                                    room: user.curRoom,
-                                    type: 'imageMessage',
-                                    nickname: user.nickname,
-                                    time: timestamp
+                    } else {
+                        formdata.append('smfile', imgFile);
+                        ajaxHandle.request('post', UPLOAD_URL, formdata, null)
+                            .then((resault) => {
+                                if (resault.code === 'success') {
+                                    let message = {
+                                        content: resault.data.url,
+                                        room: user.curRoom,
+                                        type: 'imageMessage',
+                                        nickname: user.nickname,
+                                        time: timestamp
+                                    }
+                                    if (user.isPrivate) {
+                                        return sendPrivateMessage(message);
+                                    }
+                                    return sendMessage(message);
+                                } else {
+                                    throw new Error('uplode error');
                                 }
-                                if(user.isPrivate){
-                                    return sendPrivateMessage(message);
+                            }).then((timestamp) => {
+                                if (user.isPrivate) {
+                                    return mergePrivateMessage({
+                                        room: user.curRoom,
+                                        timestamp
+                                    });
                                 }
-                                return sendMessage(message);
-                            } else{
-                                throw new Error('uplode error');
-                            }
-                        }).then((timestamp)=>{
-                            if(user.isPrivate){
-                                return mergePrivateMessage({
+                                return mergeMessage({
                                     room: user.curRoom,
                                     timestamp
                                 });
-                            }
-                            return mergeMessage({
-                                room: user.curRoom,
-                                timestamp
-                            });
-                        }).catch((err)=>{
-                            console.log(err);
-                        })
+                            }).catch((err) => {
+                                console.log(err);
+                            })
                         let fileReader = new FileReader();
                         fileReader.readAsDataURL(imgFile);
                         fileReader.onload = (event) => {
@@ -128,25 +141,30 @@ class InputArea extends React.Component{
                                 timestamp
                             };
                             this.setState({
-                                preview:imgDataUrl,
-                                progress:{
+                                preview: imgDataUrl,
+                                progress: {
                                     type: 'progress',
                                     persent: 0
                                 }
                             });
-                            if(user.isPrivate){
+                            if (user.isPrivate) {
                                 return addPrivateMessage(message);
                             }
                             addMessage(message);
-                            
+
                         }
                     }
                 }
             }
         }
     }
-    render(){
-        let { expState, setExpressionState, isShowImageExp, setImageExpState } = this.props;
+    render() {
+        let {
+            expState,
+            setExpressionState,
+            isShowImageExp,
+            setImageExpState
+        } = this.props;
         return (
             <div data-flex = 'main:center cross:top' className = 'inputarea'>
                 <div data-flex-box='0'>
