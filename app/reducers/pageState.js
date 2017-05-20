@@ -77,7 +77,6 @@ export default function pageState(state = defaultState,action) {
         }
         case ADD_EXPRESSION: {
             let expression = Immutable.fromJS({expression: action.expression});
-            console.log('expression',expression);
             return state.merge(expression);
         }
         case SHOW_INFO_CARD: {

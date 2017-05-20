@@ -12,9 +12,14 @@ module.exports = {
     },
     watch:true,
     resolve:{
+        extensions: ['','.js', '.jsx'],
         alias: {
             react: path.resolve(path.join(__dirname, 'src', 'react')),
-            'react-dom': path.resolve(path.join(__dirname, 'src', 'react-dom')),
+            'react-dom': path.resolve('src/react-dom'),
+//            'react-redux':path.resolve(path.join(__dirname,'react-redux', 'src')),
+//            'material-ui':path.resolve(path.join(__dirname,'material-ui', 'src')),
+//            'rc-queue-anim': path.resolve(path.join(__dirname, 'queue-anim', 'src')),
+//            'rc-tween-one': path.resolve(path.join(__dirname, 'tween-one', 'src')),
             //            'react-router': path.resolve(path.join(__dirname, 'react-router', 'es6')),
         },
     },
@@ -33,8 +38,9 @@ module.exports = {
                 },
                 loader: 'babel-loader', // 'babel-loader' is also a legal name to reference
                 query: {
-                    presets: ['react', 'es2015']
-                }
+                presets: ['latest', 'stage-0', 'react'],
+                plugins: []
+            },
             },{
                 test: /\.less$/,
                 loader: "style!css!less"

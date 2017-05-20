@@ -1,4 +1,7 @@
-
+queue-anim/
+react-redux/
+tween-one/
+material-ui/
 server/public/bundle/
 # Logs
 logs

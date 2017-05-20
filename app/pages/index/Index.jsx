@@ -1,6 +1,4 @@
-import React, {
-    PropTypes
-} from 'react/'
+import React, {PropTypes} from 'react/'
 
 import Menu from '../../components/Menu.jsx'
 import Loading from '../../components/Loading.jsx'
@@ -15,6 +13,8 @@ import Modal from '../../containers/Modal.js'
 import browser from '../../util/browser.js'
 import api from '../../util/api.js';
 import '../../less/indexpage.less';
+import notification from '../../util/notification';
+import config from '../../plugins/config';
 import favico from '../../util/favicoNotification.js';
 import {
     updateUserInfo,
@@ -50,10 +50,10 @@ import {
     setSnackbarState
 } from '../../actions'
 import store from '../../store';
-class Index extends React.Component {
-    constructor(props) {
+class Index extends React.Component{
+    constructor(props){
         super(props);
-
+        
         socket.on('privateMessage', (message) => {
             const state = store.getState().toJS();
             if (message.type === 'textMessage') {
@@ -185,7 +185,7 @@ class Index extends React.Component {
             console.log('重新连接...');
         })
     }
-    handleReadLocalSetting(nickname) {
+    handleReadLocalSetting(nickname){
         let storage = localStorage.getItem(nickname);
         storage = storage ? JSON.parse(storage) : {};
         let setting = storage.setting;
@@ -206,7 +206,7 @@ class Index extends React.Component {
             store.dispatch(initStorageExpression(storage.expressions));
         }
     }
-    handleInit(info) {
+    handleInit(info){
         store.dispatch(setLoadingState(true));
         getActiveList(info.token)(store.dispatch).then((res) => {
             return getRoomList(info.token)(store.dispatch);
@@ -229,7 +229,7 @@ class Index extends React.Component {
             this.props.history.push('/login');
         })
     }
-    handleEnter() {
+    handleEnter(){
         const token = localStorage.getItem('token');
         const device = browser.versions.mobile ? 'mobile' : 'PC';
         if (token) {
@@ -244,34 +244,34 @@ class Index extends React.Component {
         }
     }
     componentDidMount() {
-            let handle = null;
-            let rightBox = this.refs.rightBox;
-            window.addEventListener('resize', (event) => {
-                if (window.innerWidth > 980) {
-                    handle && clearTimeout(handle);
-                    handle = setTimeout(function () {
-                        rightBox.style.width = window.innerWidth - 275 + 'px'
-                    }, 200)
-                }
-                if (browser.versions.mobile) {
-                    this.props.setScrollState(true);
-                }
-                if (this.props.isShowRoomInfo && window.innerWidth < 581) {
-                    this.props.setRoomInfoState(false);
-                }
+        let handle = null;
+        let rightBox = this.refs.rightBox;
+        window.addEventListener('resize',(event) => {
+            if(window.innerWidth>980){
+                handle && clearTimeout(handle);
+                handle = setTimeout(function () {
+                    rightBox.style.width = window.innerWidth - 275 + 'px'
+                },200)
+            }
+            if(browser.versions.mobile){
+                this.props.setScrollState(true);
+            }
+            if(this.props.isShowRoomInfo && window.innerWidth < 581){
+                this.props.setRoomInfoState(false);
+            }
+        });
+        window.addEventListener('unload',(event) => {
+            let info = this.props.userState? this.props.userState.toJS() : {};
+            updateUserInfo({
+                nickname: info.nickname,
+                lastRoom: info.curRoom,
+                isPrivate: info.isPrivate
             });
-            window.addEventListener('unload', (event) => {
-                let info = this.props.userState ? this.props.userState.toJS() : {};
-                updateUserInfo({
-                    nickname: info.nickname,
-                    lastRoom: info.curRoom,
-                    isPrivate: info.isPrivate
-                });
-            });
-            this.handleEnter();
-        }
-        //背景图片可控制
-    render() {
+        });
+        this.handleEnter();        
+    }
+    //背景图片可控制
+    render(){
         return (
             <div style = {{
                 backgroundImage: 'url(' + this.props.bgImage + ')',

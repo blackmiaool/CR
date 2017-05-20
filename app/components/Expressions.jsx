@@ -12,6 +12,7 @@ const expressions = ['呵呵', '哈哈', '吐舌', '啊', '酷', '怒', '开心'
 class Expressions extends React.Component{
     constructor(props){
         super(props);
+
     }
     handleClick(expression){
         this.props.addExpression('#('+expression+') ');
@@ -37,8 +38,9 @@ class Expressions extends React.Component{
     }
     render(){
         const isShow = this.props.expressionState;
-        return (
-            <div
+
+        const ret= (
+            <ReactCSSTransitionGroup
                 component = 'div'
                 transitionName = 'animationBox'
                 transitionEnterTimeout = {400}
@@ -58,9 +60,9 @@ class Expressions extends React.Component{
                     </div>
                     :null
                 }
-            </div>
+            </ReactCSSTransitionGroup>
         );
-//        ReactCSSTransitionGroup
+        return  ret;
     }
 }
 Expressions.defaultProps = {

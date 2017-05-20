@@ -4,12 +4,10 @@ import io from 'socket.io-client'
 // export const socket = io('http://mdzzapp.com:3000',{'force new connection': true});
 // export const socket = io('http://mdzzapp.com:3001');
 let browserHistory;
-export function setHistory(history) {
-    browserHistory = history;
+export function setHistory(history){
+    browserHistory=history;
 }
-export const socket = io('http://mdzzapp.com:3000', {
-    'force new connection': true
-});
+export const socket = io('http://mdzzapp.com:3000',{'force new connection': true});
 
 export const LOAD_MESSAGE_LIMIT = 15;
 // page UI state
@@ -30,12 +28,12 @@ export const SET_LOADING_STATE = 'SET_LOADING_STATE';
 //暂定编辑器显示方式，以后改异步加载
 export const SET_RICHTEXT_STATE = 'SET_RICHTEXT_STATE';
 export const setRichTextState = (richTextState) => {
-        return {
-            type: SET_RICHTEXT_STATE,
-            richTextState
-        }
+    return {
+        type: SET_RICHTEXT_STATE,
+        richTextState
     }
-    //
+}
+//
 export const setLoadingState = (loadingState) => {
     return {
         type: SET_LOADING_STATE,
@@ -58,7 +56,7 @@ export const setMenuState = (menuState) => {
 export const setExpressionShow = () => {
     return {
         type: SET_EXPRESSION_STATE,
-        expressionState: {
+        expressionState:{
             isShow: true
         }
     }
@@ -66,12 +64,12 @@ export const setExpressionShow = () => {
 export const setExpressionHidden = () => {
     return {
         type: SET_EXPRESSION_STATE,
-        expressionState: {
+        expressionState:{
             isShow: false
         }
     }
 }
-export const setExpressionState = (expressionState) => {
+export const  setExpressionState = (expressionState) => {
     return {
         type: SET_EXPRESSION_STATE,
         expressionState
@@ -130,12 +128,12 @@ export const setCreateRoomState = (state) => {
     }
 }
 export const setSearchUserState = (state) => {
-        return {
-            type: SET_SEARCH_USER_STATE,
-            state
-        }
+    return {
+        type: SET_SEARCH_USER_STATE,
+        state
     }
-    // init
+}
+// init
 export const SET_USER_INFO = 'SET_USER_INFO';
 export const setUserInfo = (user) => {
     return {
@@ -143,14 +141,14 @@ export const setUserInfo = (user) => {
         user
     }
 }
-export const getInitUserInfo = (info) => {  
-    return (dispatch, getState) => {
-        return new Promise((resolve) => {
-            socket.emit('getInfo', info, (body) => {
-                if (body.isError) {
+export const getInitUserInfo = (info) => {
+    return (dispatch,getState) => {
+        return new Promise((resolve)=>{
+            socket.emit('getInfo',info, (body) => {
+                if(body.isError){
                     alert('用户已经在线');
                     browserHistory.push('/login');
-                } else {
+                } else{
                     body.token = info.token;
                     dispatch(setUserInfo(body));
                     resolve(body);
@@ -178,21 +176,21 @@ export const setUserCurRoom = (roomInfo) => {
 }
 
 export const changeRoom = (roomInfo) => {
-    return (dispatch, getState) => {
+    return (dispatch,getState) => {
         const state = getState().toJS();
         let preRoom = state.userState.curRoom;
         dispatch(setUserCurRoom(roomInfo));
         dispatch(clearCount(roomInfo.curRoom));
         dispatch(setScrollState(true));
-        if (state.userState.isPrivate) {
+        if(state.userState.isPrivate){
             dispatch(clearPrivateHistory(preRoom));
-        } else {
+        } else{
             dispatch(clearHistory(preRoom));
         }
-        if (roomInfo.isPrivate) {
-            if (!state['activeList'][roomInfo.curRoom]) {
+        if(roomInfo.isPrivate){
+            if(!state['activeList'][roomInfo.curRoom]){
                 //头像会有bug，暂时处理方式
-                let privateUser = state['roomInfo']['active'] ? state['roomInfo']['active'][roomInfo.curRoom] : null;
+                let privateUser = state['roomInfo']['active']?state['roomInfo']['active'][roomInfo.curRoom]:null;
                 dispatch(addActiveItem({
                     roomName: roomInfo.curRoom,
                     avatar: privateUser ? privateUser.avatar : 'http://oajmk96un.bkt.clouddn.com/lolo.jpg',
@@ -201,20 +199,20 @@ export const changeRoom = (roomInfo) => {
             }
             // 如果之前房间不是私聊则清除公共房间记录
             let messages = state['privateMessages'][roomInfo.curRoom] || [];
-            if (messages.length < 15) {
+            if(messages.length < 15){
                 dispatch(setLoadingState(true));
                 getPrivateHistory({
-                        fromUser: roomInfo.curRoom,
-                        toUser: state.userState.nickname,
-                        timestamp: messages.length > 0 ? messages[0].timestamp : new Date().getTime(),
-                        limit: LOAD_MESSAGE_LIMIT
-                    })(dispatch, getState)
-                    .then(
-                        () => dispatch(setLoadingState(false))
-                    );
+                    fromUser: roomInfo.curRoom,
+                    toUser: state.userState.nickname,
+                    timestamp: messages.length>0 ? messages[0].timestamp : new Date().getTime(),
+                    limit: LOAD_MESSAGE_LIMIT
+                })(dispatch,getState)
+                .then(
+                    () => dispatch(setLoadingState(false))
+                );
             }
-        } else {
-            if (!state['activeList'][roomInfo.curRoom]) {
+        } else{
+            if(!state['activeList'][roomInfo.curRoom]){
                 let curRoom = state['roomList'][roomInfo.curRoom] || {};
                 dispatch(addActiveItem({
                     roomName: roomInfo.curRoom,
@@ -225,37 +223,37 @@ export const changeRoom = (roomInfo) => {
             let messages = state['messages'][roomInfo.curRoom] || [];
             dispatch(setLoadingState(true));
             getRoomActiveInfo(roomInfo.curRoom)(dispatch)
-                .then((resault) => {
-                    if (messages.length < 15) {
-                        return getRoomHistory({
-                            roomName: roomInfo.curRoom,
-                            timestamp: messages.length > 0 ? messages[0].timestamp : new Date().getTime(),
-                            limit: LOAD_MESSAGE_LIMIT
-                        })(dispatch);
-                    }
-                    return;
-                })
-                .then(
-                    () => dispatch(setLoadingState(false))
-                )
+            .then((resault) => {
+                if(messages.length < 15){
+                    return getRoomHistory({
+                        roomName: roomInfo.curRoom,
+                        timestamp: messages.length>0 ? messages[0].timestamp : new Date().getTime(),
+                        limit: LOAD_MESSAGE_LIMIT
+                    })(dispatch);
+                }
+                return ;
+            })
+            .then(
+                () => dispatch(setLoadingState(false))
+            )
         }
     }
 }
 export const updateUserInfo = (userInfo) => {
-        return new Promise((resolve) => {
-            socket.emit('updateUserInfo', userInfo, (resault) => {
-                if (resault.isError) {
-                    setSnackbarState({
-                        open: true,
-                        content: res.errMsg
-                    })
-                } else {
-                    resolve(resault);
-                }
-            })
+    return new Promise((resolve) => {
+        socket.emit('updateUserInfo',userInfo,(resault) => {
+            if(resault.isError){
+                setSnackbarState({
+                    open: true,
+                    content: res.errMsg
+                })
+            } else{
+                resolve(resault);
+            }
         })
-    }
-    //message
+    })
+}
+//message
 export const SEND_MESSAGE = 'SEND_MESSAGE';
 export const ADD_MESSAGE = 'ADD_MESSAGE';
 export const MERGE_MESSAGE = 'MERGE_MESSAGE';
@@ -274,36 +272,36 @@ export const clearHistory = (room) => {
 }
 export const addMessage = (message) => {
     return {
-        type: ADD_MESSAGE,
+        type:ADD_MESSAGE,
         message
     }
 }
 export const sendMessage = (message) => {
-    return new Promise((resolve, reject) => {
-        socket.emit('message', message, (body) => {
-            if (body.isError) {
-                reject(body);
-            } else {
+    return new Promise((resolve,reject)=>{
+        socket.emit('message',message, (body) => {
+            if(body.isError){
+                 reject(body);
+            } else{
                 resolve(body);
             }
         })
     })
 }
 export const sendMessageWithPre = (message) => {
-    return (dispatch, getState) => {
-        let avatar = getState().getIn(['userState', 'avatar']),
+    return (dispatch,getState) => {
+        let avatar = getState().getIn(['userState','avatar']),
             timestamp = new Date().getTime();
-        dispatch(addMessage(Object.assign({}, {
+        dispatch(addMessage(Object.assign({},{
             isLoading: true,
             avatar,
             timestamp
-        }, message)));
+        },message)));
         message.time = timestamp;
         return sendMessage(message);
-    }
+    }   
 }
 
-export const addHistoryMessage = (room, messages) => {
+export const addHistoryMessage = (room,messages) => {
     return {
         type: ADD_HISTORY_MESSAGE,
         room,
@@ -311,29 +309,29 @@ export const addHistoryMessage = (room, messages) => {
     }
 }
 export const getRoomHistory = (info) => {
-    return (dispatch, getState) => {
-        return new Promise((resolve) => {
-            if (!info) {
+    return (dispatch,getState) => {
+        return new Promise((resolve)=>{
+            if(!info) {
                 const state = getState().toJS();
-                let roomName = state.userState.curRoom;
+                let roomName = state.userState.curRoom; 
                 let messages = state['messages'][roomName] ? state['messages'][roomName] : [];
                 info = {
                     roomName: roomName,
-                    timestamp: messages.length > 0 ? messages[0].timestamp : new Date().getTime(),
+                    timestamp: messages.length>0 ? messages[0].timestamp : new Date().getTime(),
                     limit: LOAD_MESSAGE_LIMIT
                 }
             }
-            socket.emit('getRoomHistory', info, (body, res) => {
-                if (body.isError) {
+            socket.emit('getRoomHistory',info, (body,res) => {
+                if(body.isError){
                     dispatch(setSnackbarState({
                         content: body.errMsg,
                         open: true
                     }));
                     browserHistory.push('/login');
-                } else {
+                } else{
                     let histories = body.histories || [];
                     let isloadAll = histories.length < LOAD_MESSAGE_LIMIT;
-                    dispatch(addHistoryMessage(info.roomName, histories));
+                    dispatch(addHistoryMessage(info.roomName,histories));
                     resolve(isloadAll);
                 }
             })
@@ -348,34 +346,34 @@ export const mergeMessage = (info) => {
 }
 export const addPrivateMessage = (message) => {
     return {
-        type: ADD__PRIVATE_MESSAGE,
+        type:ADD__PRIVATE_MESSAGE,
         message
     }
 }
 
 export const sendPrivateMessage = (message) => {
-    return new Promise((resolve, reject) => {
-        socket.emit('privateMessage', message, (body) => {
-            if (!body.isError) {
+    return new Promise((resolve,reject)=>{
+        socket.emit('privateMessage',message, (body) => {
+            if(!body.isError){
                 resolve(body);
-            } else {
+            } else{
                 reject(body);
             }
         })
     })
 }
 export const sendPrivateMessageWithPre = (message) => {
-    return (dispatch, getState) => {
-        let avatar = getState().getIn(['userState', 'avatar']),
+    return (dispatch,getState) => {
+        let avatar = getState().getIn(['userState','avatar']),
             timestamp = new Date().getTime();
-        dispatch(addPrivateMessage(Object.assign({}, {
+        dispatch(addPrivateMessage(Object.assign({},{
             isLoading: true,
             avatar,
             timestamp
-        }, message)));
+        },message)));
         message.time = timestamp;
         return sendPrivateMessage(message);
-    }
+    } 
 }
 export const mergePrivateMessage = (info) => {
     return {
@@ -383,7 +381,7 @@ export const mergePrivateMessage = (info) => {
         info
     }
 }
-export const addPrivateHistory = (room, messages) => {
+export const addPrivateHistory = (room,messages) => {
     return {
         type: ADD_PRIVATE_HISTORY_MESSAGE,
         room,
@@ -391,31 +389,31 @@ export const addPrivateHistory = (room, messages) => {
     }
 }
 export const getPrivateHistory = (info) => {
-    return (dispatch, getState) => {
+    return (dispatch,getState) => {
         return new Promise((resolve) => {
-            if (!info) {
+            if(!info) {
                 const state = getState().toJS();
-                let fromUser = state.userState.curRoom;
+                let fromUser = state.userState.curRoom; 
                 let toUser = state.userState.nickname;
                 let messages = state['privateMessages'][fromUser] ? state['privateMessages'][fromUser] : [];
                 info = {
                     fromUser: fromUser,
                     toUser: toUser,
-                    timestamp: messages.length > 0 ? messages[0].timestamp : new Date().getTime(),
+                    timestamp: messages.length>0 ? messages[0].timestamp : new Date().getTime(),
                     limit: LOAD_MESSAGE_LIMIT
                 }
             }
-            socket.emit('getPrivateHistory', info, (body) => {
-                if (body.isError) {
+            socket.emit('getPrivateHistory',info,(body) =>{
+                if(body.isError){
                     dispatch(setSnackbarState({
                         content: body.errMsg,
                         open: true
                     }));
                     reject(body);
-                } else {
+                } else{
                     let histories = body.histories || [];
                     let isloadAll = histories.length < LOAD_MESSAGE_LIMIT;
-                    dispatch(addPrivateHistory(info.fromUser, histories));
+                    dispatch(addPrivateHistory(info.fromUser,histories));
                     resolve(isloadAll);
                 }
             })
@@ -423,33 +421,33 @@ export const getPrivateHistory = (info) => {
     }
 }
 export const clearPrivateHistory = (room) => {
-        return {
-            type: CLEAR_PRIVATE_HISTORY,
-            room
-        }
+    return {
+        type: CLEAR_PRIVATE_HISTORY,
+        room
     }
-    // info card
+}
+// info card
 export const SET_INFOCARD_STATE = 'SET_INFOCARD_STATE';
 export const SHOW_INFO_CARD = 'SHOW_INFO_CARD';
 export const SET_USER_CARD_INFO = 'SET_USER_CARD_INFO';
 export const HIDDEN_INFO_CARD = 'HIDDEN_INFO_CARD';
 export const GET_USER_INFO = 'GET_USER_INFO';
-export const getUserInfo = (nickname) => {   
-    return (dispatch, getState) => {
+export const getUserInfo = (nickname) => {
+    return (dispatch,getState) => {
         const state = getState().toJS();
         dispatch(setSnackbarState({
-            content: '获取' + nickname + '信息中',
+            content: '获取'+nickname+'信息中',
             autoHideDuration: 1000,
             open: true
         }));
-        return new Promise((resolve) => {
-            socket.emit('getUserInfo', nickname, (body) => {
-                if (body.isError) {
+        return new Promise((resolve)=>{
+            socket.emit('getUserInfo',nickname, (body) => {
+                if(body.isError){
                     dispatch(setSnackbarState({
                         content: body.errMsg,
                         open: true
                     }));
-                } else {
+                } else{
                     dispatch(setUserCardInfo(body));
                     dispatch(showInfoCard({
                         isShow: true,
@@ -479,13 +477,13 @@ export const hiddenInfoCard = () => {
     }
 }
 export const changeAvatar = (info) => {
-        return new Promise((resolve) => {
-            socket.emit('changeAvatar', info, (body) => {
-                resolve(body);
-            })
+    return new Promise((resolve)=>{
+        socket.emit('changeAvatar', info, (body)=>{
+            resolve(body);
         })
-    }
-    // badge
+    })
+}
+// badge
 export const ADD_BADGE_COUNT = 'ADD_BADGE_COUNT';
 export const CLEAR_BADGE_COUNT = 'CLEAR_BADGE_COUNT';
 export const addCount = (room, count = 1) => {
@@ -496,18 +494,18 @@ export const addCount = (room, count = 1) => {
     }
 }
 export const clearCount = (room) => {
-        return {
-            type: CLEAR_BADGE_COUNT,
-            room
-        }
+    return {
+        type: CLEAR_BADGE_COUNT,
+        room
     }
-    //setting
+}
+//setting
 export const SET_AUDIO_STATE = 'SET_AUDIO_STATE';
 export const SET_NOTIFICATION_STATE = 'SET_NOTIFICATION_STATE';
 export const SET_SPECIAL_USER = 'SET_SPECIAL_USER';
 export const SET_SHIELD_USER = 'SET_SHIELD_USER';
 export const SET_BACKGROUND_IMAGE = 'SET_BACKGROUND_IMAGE';
-export const setAudioState = (state) => {
+export const setAudioState =  (state) => {
     return {
         type: SET_AUDIO_STATE,
         state
@@ -539,14 +537,14 @@ export const setBgImage = (url) => {
     }
 }
 export const storageSetting = () => {
-    return (dispatch, getState) => {
+    return (dispatch,getState) => {
         const state = getState().toJS();
-        if (typeof localStorage === 'object') {
+        if( typeof localStorage === 'object'){
             let storage = {};
             storage.setting = state.setting;
             storage.expressions = state.storageExpressions;
             storage = JSON.stringify(storage);
-            localStorage.setItem(state.userState.nickname, storage);
+            localStorage.setItem(state.userState.nickname,storage);
         }
     }
 }
@@ -567,27 +565,27 @@ export const setSlideArr = (slideArr) => {
     }
 }
 export const findSlideArr = (index) => {
-    return (dispatch, getState) => {
-        let arr = [-1, -1, -1];
+    return (dispatch,getState) => {
+        let arr = [-1,-1,-1];
         const state = getState().toJS();
         const history = state.userState.isPrivate ? state.privateMessages[state.userState.curRoom] : state.messages[state.userState.curRoom];
         arr[1] = {
-            index: index,
+            index:index,
             image: history[index].content
         };
-        for (let i = index - 1; i > -1; i--) {
-            if (history[i].type === 'imageMessage') {
+        for(let i = index - 1; i > -1; i--){
+            if(history[i].type === 'imageMessage'){
                 arr[0] = {
-                    index: i,
+                    index:i,
                     image: history[i].content
                 };
                 break;
             }
         }
-        for (let j = index + 1; j < history.length; j++) {
-            if (history[j].type === 'imageMessage') {
+        for(let j = index + 1; j < history.length; j++){
+            if(history[j].type === 'imageMessage'){
                 arr[2] = {
-                    index: j,
+                    index:j,
                     image: history[j].content
                 };
                 break;
@@ -597,39 +595,39 @@ export const findSlideArr = (index) => {
     }
 }
 export const switchImage = (btn) => {
-        return (dispatch, getState) => {
-            const state = getState().toJS();
-            const history = state.userState.isPrivate ? state.privateMessages[state.userState.curRoom] : state.messages[state.userState.curRoom];
-            let arr = state.imageSlide.slideArr;
-            if (btn === 'pre') {
-                arr.pop();
-                for (let i = arr[0].index - 1; i > -1; i--) {
-                    if (history[i].type === 'imageMessage') {
-                        arr.unshift({
-                            index: i,
-                            image: history[i].content
-                        });
-                        break;
-                    }
+    return (dispatch,getState) => {
+        const state = getState().toJS();
+        const history = state.userState.isPrivate ? state.privateMessages[state.userState.curRoom] : state.messages[state.userState.curRoom];
+        let arr = state.imageSlide.slideArr;
+        if(btn === 'pre'){
+            arr.pop();
+            for(let i = arr[0].index - 1; i > -1; i--){
+                if(history[i].type === 'imageMessage'){
+                    arr.unshift({
+                        index:i,
+                        image: history[i].content
+                    });
+                    break;
                 }
-                arr.length < 3 ? arr.unshift(-1) : null;
-            } else {
-                arr.shift();
-                for (let j = arr[1].index + 1; j < history.length; j++) {
-                    if (history[j].type === 'imageMessage') {
-                        arr.push({
-                            index: j,
-                            image: history[j].content
-                        });
-                        break;
-                    }
-                }
-                arr.length < 3 ? arr.push(-1) : null;
             }
-            dispatch(setSlideArr(arr));
+            arr.length < 3? arr.unshift(-1):null;
+        } else{
+            arr.shift();
+            for(let j = arr[1].index + 1; j < history.length; j++){
+                if(history[j].type === 'imageMessage'){
+                    arr.push({
+                        index: j,
+                        image: history[j].content
+                    });
+                    break;
+                }
+            }
+            arr.length < 3? arr.push(-1):null;
         }
+        dispatch(setSlideArr(arr));
     }
-    //  expression store
+}
+//  expression store
 export const ADD_STORAGE_EXPRESSION = 'ADD_STORAGE_EXPRESSION';
 export const DELETE_STORAGE_EXPRESSION = 'DELETE_STORAGE_EXPRESSION';
 export const INIT_STORAGE_EXPRESSION = 'INIT_STORAGE_EXPRESSION';
@@ -653,28 +651,22 @@ export const deleteStorageExpression = (expression) => {
 }
 
 //登录&注册&登出处理
-export const login = (nickname, password) => {
-    return new Promise((resolve, reject) => {
-        socket.emit('login', {
-            nickname,
-            password
-        }, (info) => {
+export const login = (nickname,password)=>{
+    return new Promise((resolve,reject) => {
+        socket.emit('login',{nickname,password},(info)=>{
             resolve(info);
         })
     })
 }
-export const signUp = (nickname, password) => {
-    return new Promise((resolve, reject) => {
-        socket.emit('signUp', {
-            nickname,
-            password
-        }, (info) => {
+export const signUp = (nickname,password)=>{
+    return new Promise((resolve,reject) => {
+        socket.emit('signUp',{nickname,password},(info)=>{
             resolve(info);
         })
     })
 }
 export const logout = () => {
-    return (dispatch, getState) => {
+    return (dispatch,getState) => {
         const state = getState().toJS();
         const token = state.userState.token;
         delete localStorage.token;
@@ -685,10 +677,10 @@ export const logout = () => {
 }
 export const reconnect = (token) => {
     return new Promise((resolve, reject) => {
-        socket.emit('reconnect success', token, (body) => {
-            if (body.isError) {
+        socket.emit('reconnect success',token,(body) => {
+            if(body.isError){
                 reject(body);
-            } else {
+            } else{
                 resolve(body);
             }
         });
@@ -709,12 +701,12 @@ export const initRoomHistory = (messages) => {
     }
 }
 export const initPrivateHistory = (messages) => {
-        return {
-            type: INIT_PRIVATE_ROOM_HISTORIES,
-            messages
-        }
+    return {
+        type: INIT_PRIVATE_ROOM_HISTORIES,
+        messages
     }
-    // 初始化activeList
+}
+// 初始化activeList
 export const INIT_ACTIVE_LIST = 'INIT_ACTIVE_LIST';
 export const ADD_ACTIVE_ITEM = 'ADD_ACTIVE_ITEM';
 export const DELETE_ACTIVE_ITEM = 'DELETE_ACTIVE_ITEM';
@@ -737,18 +729,18 @@ export const deleteActiveItem = (item) => {
     }
 }
 
-const initBageCount = (dispatch, histories, ignore) => {
-    for (let key in histories) {
-        dispatch(addCount(key, histories[key]['length']));
+const initBageCount = (dispatch,histories,ignore) => {
+    for(let key in histories){
+        dispatch(addCount(key,histories[key]['length']));
     }
 }
 export const getActiveList = (token) => {
     return (dispatch) => {
-        return new Promise((resolve, reject) => {
-            socket.emit('getActiveList', token, (body) => {
-                if (body.isError) {
+        return new Promise((resolve,reject) => {
+            socket.emit('getActiveList',token,(body)=>{
+                if(body.isError){
                     browserHistory.push('/login');
-                } else {
+                } else{
                     dispatch(initRoomHistory(body.roomHistories));
                     dispatch(initPrivateHistory(body.privateHistories));
                     dispatch(initActiveList(body.activeList));
@@ -761,19 +753,19 @@ export const getActiveList = (token) => {
 export const joinRoom = (info) => {
     return (dispatch) => {
         return new Promise((resolve) => {
-            socket.emit('joinRoom', info, (body) => {
+            socket.emit('joinRoom',info,(body) => {
                 resolve(body);
             })
         })
     }
-
+    
 }
 
 export const SET_ROOM_CARD_INFO = 'SET_ROOM_CARD_INFO';
 export const getRoomInfo = (roomName) => {
     return (dispatch) => {
         return new Promise((resolve) => {
-            socket.emit('getRoomInfo', roomName, (body) => {
+            socket.emit('getRoomInfo',roomName,(body) => {
                 dispatch(setRoomCardInfo(body));
                 dispatch(showInfoCard({
                     isShow: true,
@@ -782,7 +774,7 @@ export const getRoomInfo = (roomName) => {
             })
         })
     }
-}
+} 
 export const setRoomCardInfo = (info) => {
     return {
         type: SET_ROOM_CARD_INFO,
@@ -790,31 +782,31 @@ export const setRoomCardInfo = (info) => {
     }
 }
 export const updateRoomInfo = (info) => {
-        return (dispatch) => {
-            return new Promise((resolve) => {
-                socket.emit('updateRoomInfo', info, (body) => {
-                    if (body.isError) {
+    return (dispatch) => {
+        return new Promise((resolve) => {
+            socket.emit('updateRoomInfo',info,(body) => {
+                if(body.isError){
+                    dispatch(setSnackbarState({
+                        content: body.errMsg,
+                        open: true
+                    }));
+                    reject(body);
+                } else{
+                    if(body.isOk){
                         dispatch(setSnackbarState({
-                            content: body.errMsg,
+                            content: body.msg,
                             open: true
                         }));
-                        reject(body);
-                    } else {
-                        if (body.isOk) {
-                            dispatch(setSnackbarState({
-                                content: body.msg,
-                                open: true
-                            }));
-                            getRoomList(info.token)(dispatch);
-                            dispatch(addActiveItem(body.roomInfo, body.roomInfo.roomName));
-                            resolve(body);
-                        }
+                        getRoomList(info.token)(dispatch);
+                        dispatch(addActiveItem(body.roomInfo,body.roomInfo.roomName));
+                        resolve(body);
                     }
-                })
+                }
             })
-        }
+        })
     }
-    // roomList
+}
+// roomList
 
 export const SET_ROOM_LIST = 'SET_ROOM_LIST';
 export const setRoomList = (roomList) => {
@@ -825,15 +817,15 @@ export const setRoomList = (roomList) => {
 }
 export const getRoomList = (token) => {
     return (dispatch) => {
-        return new Promise((resolve, reject) => {
-            socket.emit('getRoomList', token, (body) => {
-                if (body.isError) {
+        return new Promise((resolve,reject) => {
+            socket.emit('getRoomList',token,(body)=>{
+                if(body.isError){
                     reject(body);
-                } else {
+                } else{
                     dispatch(setRoomList(body));
                     resolve(body);
                 }
-
+                
             })
         })
     }
@@ -851,8 +843,8 @@ export const initSearchRoom = (list) => {
 }
 export const searchRoom = (key) => {
     return (dispatch) => {
-        return new Promise((resolve, reject) => {
-            socket.emit('searchRoom', key, (body) => {
+        return new Promise((resolve,reject) => {
+            socket.emit('searchRoom',key,(body) => {
                 dispatch(initSearchRoom(body));
             })
         })
@@ -860,17 +852,17 @@ export const searchRoom = (key) => {
 }
 
 export const createRoom = (info) => {
-    return (dispatch) => {
-        return new Promise((resolve, reject) => {
-            socket.emit('createRoom', info, (body) => {
-                if (body.isError) {
+    return (dispatch) =>{
+        return new Promise((resolve,reject) => {
+            socket.emit('createRoom',info,(body) => {
+                if(body.isError){
                     dispatch(setSnackbarState({
                         content: body.errMsg,
                         open: true
                     }));
                     reject(body);
-                } else {
-                    if (body.isOk) {
+                } else{
+                    if(body.isOk){
                         dispatch(addActiveItem(body.roomInfo));
                         dispatch(setSnackbarState({
                             open: false
@@ -881,7 +873,7 @@ export const createRoom = (info) => {
             })
         })
     }
-
+    
 }
 
 //
@@ -894,15 +886,15 @@ export const refreshRoomActiveInfo = (info) => {
 }
 export const getRoomActiveInfo = (roomName) => {
     return (dispatch) => {
-        return new Promise((resolve, reject) => {
-            socket.emit('getRoomActiveInfo', roomName, (body) => {
-                if (body.isError) {
+        return new Promise((resolve,reject) => {
+            socket.emit('getRoomActiveInfo',roomName,(body) => {
+                if(body.isError){
                     dispatch(setSnackbarState({
                         content: body.errMsg,
                         open: true
                     }));
                     reject(body);
-                } else {
+                } else{
                     dispatch(refreshRoomActiveInfo(body));
                     resolve(body);
                 }
@@ -920,15 +912,15 @@ export const setSearchUserList = (list) => {
 
 export const searchUser = (info) => {
     return (dispatch) => {
-        return new Promise((resolve, reject) => {
-            socket.emit('searchUser', info, (body) => {
-                if (body.isError) {
+        return new Promise((resolve,reject) => {
+            socket.emit('searchUser',info,(body) => {
+                if(body.isError){
                     dispatch(setSnackbarState({
                         content: body.errMsg,
                         open: true
                     }));
                     reject(body);
-                } else {
+                } else{
                     dispatch(setSearchUserList(body));
                 }
             })
@@ -937,13 +929,13 @@ export const searchUser = (info) => {
 }
 
 export const getRichTextContent = (info) => {
-    return new Promise((resolve, reject) => {
-        socket.emit('getRichTextContent', info, (body) => {
-            if (body.isError) {
-                reject(body);
-            } else {
-                resolve(body);
-            }
+    return new Promise((resolve,reject) => {
+        socket.emit('getRichTextContent',info,(body) => {
+            if(body.isError){
+                    reject(body);
+                } else{
+                    resolve(body);
+                }
         })
     })
 }

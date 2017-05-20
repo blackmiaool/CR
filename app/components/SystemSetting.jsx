@@ -56,7 +56,7 @@ class SystemSetting extends React.Component{
         this.props.storageSetting();
         this.props.setSystemSettingState(false);
     }
-    render(){
+    render(){        
         return !this.props.isShowSysSetting?null:(
             <div data-flex = 'main:center cross:center' className = 'system-setting-container'>
                 <div className = 'system-setting-box'>
