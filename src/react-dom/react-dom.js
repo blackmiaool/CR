@@ -924,12 +924,12 @@ function create(element, {
 
 
     //normal dom
-    const instance = new ReactDOMComponent(type, element, owner);
-    const dom = instance._hostNode;
+    const wrapper = new ReactDOMComponent(type, element, owner);
+    const dom = wrapper._hostNode;
 
     if (props.children) {
-        let result = getChildren(dom, props.children, {}, owner, context, instance);
-        instance._renderedChildren = result.children;
+        let result = getChildren(dom, props.children, {}, owner, context, wrapper);
+        wrapper._renderedChildren = result.children;
     }
     return dom;
 }
@@ -1001,8 +1001,8 @@ function update(dom, element, {
     if (dom.nodeType === 8 && element) { //comment, force render
         forceRender = true;
     }
-    const instance = dom[internalInstanceKey];
-    const element0 = instance._currentElement;
+    const wrapper = dom[internalInstanceKey];
+    const element0 = wrapper._currentElement;
 
 
     let ownerType;
@@ -1106,8 +1106,10 @@ function update(dom, element, {
     }
 
     if (isComponent(element.type)) {
-        instance.refAttach(element.ref);
+        wrapper.refAttach(element.ref);
+        wrapper._currentElement.ref = element.ref;
     }
+
 
     if (!equals(element0.props, element.props)) { //props changed        
         if (isComponent(element.type)) {
@@ -1119,7 +1121,7 @@ function update(dom, element, {
                 if (value0 !== value) {
                     //                    console.log("not");
                     if (attrMap.dom[attrName]) {
-                        attrMap.dom[attrName](value, value0, dom, instance, attrName);
+                        attrMap.dom[attrName](value, value0, dom, wrapper, attrName);
                     } else {
                         if (value) {
                             dom.setAttribute(attrName, value);
@@ -1138,7 +1140,7 @@ function update(dom, element, {
 
 
     if (!isComponent(element.type)) {
-        const oldChildren = instance._renderedChildren;
+        const oldChildren = wrapper._renderedChildren;
 
         const newChildren = getChildren(dom, element.props.children, oldChildren, owner, context).children;
 
@@ -1153,7 +1155,7 @@ function update(dom, element, {
             }
         }
 
-        instance._renderedChildren = newChildren;
+        wrapper._renderedChildren = newChildren;
 
     }
 
