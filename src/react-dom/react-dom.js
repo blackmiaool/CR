@@ -190,6 +190,9 @@ function insertAfter(newNode, referenceNode) {
 }
 
 function equals(x, y) {
+    if (x === y) {
+        return true;
+    }
     if (!(typeof x === 'object' && x && typeof y === 'object' && y)) {
         if (x !== y) {
             return;
@@ -501,19 +504,20 @@ class ReactCompositeComponentWrapper extends ReactWrapper {
 
         if (isReactComponent(type)) {
             if (instance.componentDidMount) {
-                globalAfterRenderQueue.push(() => {
-                    if (!this.isMounted) {
-                        return;
-                    }
-                    asyncSetState();
-                    instance.componentDidMount();
-                    this.handleStateQueue(this._instance.props, true);
-                });
+                globalAfterRenderQueue.push(this.didMount.bind(this));
             }
         }
         const dom = this.create(element.props, context);
 
         return dom;
+    }
+    didMount() {
+        if (!this.isMounted) {
+            return;
+        }
+        asyncSetState();
+        this._instance.componentDidMount();
+        this.handleStateQueue(this._instance.props, true);
     }
     assignDefaultProps(props) {
         if (this.jsxType.defaultProps) {
@@ -573,7 +577,7 @@ class ReactCompositeComponentWrapper extends ReactWrapper {
         this._instance.context = this.getSelfContext();
     }
     create(props, context) {
-        renderingComponentStack.push(this);
+
         let dom;
         let element;
 
@@ -585,26 +589,22 @@ class ReactCompositeComponentWrapper extends ReactWrapper {
             this.handleStateQueue(props);
         }
 
-        element = this.render()
-
-
         let childContext = this.getContext();
 
         const that = this;
-
-        //        if (element) {
-        //            this.transformRef(element); //they will remove this    
-        //        }
+        renderingComponentStack.push(this);
+        element = this.render()
 
         dom = create(element, {
             owner: this,
             context: childContext
         });
+        renderingComponentStack.pop();
         if (!dom) {
             console.log('wrong hostNode', element, this, dom);
         }
         this._hostNode = dom;
-        renderingComponentStack.pop();
+
         this.handleAfterRenderQueue();
         //        console.console.log(element);
         this.refAttach(this._currentElement.ref);
@@ -673,6 +673,10 @@ class ReactCompositeComponentWrapper extends ReactWrapper {
     }
     handleStateQueue(props, render) {
         asyncSetState(false);
+        const index = ReactCompositeComponentWrapper.dirtyQueue.indexOf(this);
+        if (index !== -1) {
+            ReactCompositeComponentWrapper.dirtyQueue.splice(index, 1);
+        }
         const instance = this._instance;
         const oldState = instance.state;
         if (!this.stateQueue.length) {
@@ -714,8 +718,22 @@ class ReactCompositeComponentWrapper extends ReactWrapper {
     }
     forceUpdate(state, props) {
         this.doUpdate(state, props, this.getSelfContext());
+    }
+    addToDirty(wrapper) {
+        if (ReactCompositeComponentWrapper.dirtyQueue.indexOf(this) === -1) {
+            ReactCompositeComponentWrapper.dirtyQueue.push(this);
+        }
+    }
+    static dirtyQueue = []
+    static handleDirty() {
+        ReactCompositeComponentWrapper.dirtyQueue.forEach(function (wrapper) {
+            wrapper.handleStateQueue(wrapper._instance.props, true);
+        });
+    }
+    static afterUpdate() {
         if (!renderingComponentStack.length && !firstRender) {
             handleQueue(globalAfterRenderQueue);
+            ReactCompositeComponentWrapper.handleDirty();
         }
     }
     doUpdate(nextState, nextProps, nextContext) {
@@ -775,8 +793,9 @@ class ReactCompositeComponentWrapper extends ReactWrapper {
                 componentRef: instance,
                 context: this.getContext()
             });
-            this._hostNode = result;
             renderingComponentStack.pop();
+            this._hostNode = result;
+
 
             this.handleAfterRenderQueue();
 
@@ -786,14 +805,13 @@ class ReactCompositeComponentWrapper extends ReactWrapper {
                 instance.componentDidUpdate(prevProps, prevState, prevContext)
                 this.handleStateQueue(instance.props, true);
             }
-            if (!renderingComponentStack.length && !firstRender) {
-                handleQueue(globalAfterRenderQueue);
-            }
+
         } else {
             instance.state = nextState;
             instance.props = nextProps;
             result = this._hostNode;
         }
+        ReactCompositeComponentWrapper.afterUpdate();
         return result;
     }
 

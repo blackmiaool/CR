@@ -19,6 +19,7 @@ function createClass(obj) {
     a.originalCreateClassObj = obj;
     return a;
 }
+let cnt = 0;
 class Component {
     constructor(props, context) {
         this.props = props;
@@ -29,11 +30,14 @@ class Component {
 
     }
     forceUpdate() {
+        cnt++;
         const wrapper = this._reactInternalInstance;
         wrapper.forceUpdate(this.state, this.props);
+        cnt--;
+        console.log('cnt', cnt);
     }
     setState(updater, cb) {
-
+        cnt++;
         const wrapper = this._reactInternalInstance;
 
         wrapper.stateQueue.push({
@@ -43,7 +47,11 @@ class Component {
 
         if (!exports.isAsyncSetState) {
             wrapper.handleStateQueue(this.props, true);
+        } else {
+            wrapper.addToDirty();
         }
+
+        //        console.log(renderingComponentStack.length);
 
     }
 }
