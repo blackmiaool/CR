@@ -27340,7 +27340,7 @@
 	            socket.emit('getInfo', info, function (body) {
 	                if (body.isError) {
 	                    alert('用户已经在线');
-	                    browserHistory.push('/login');
+	                    browserHistory.push('/CR/server/public/login');
 	                } else {
 	                    body.token = info.token;
 	                    dispatch(setUserInfo(body));
@@ -27517,7 +27517,7 @@
 	                        content: body.errMsg,
 	                        open: true
 	                    }));
-	                    browserHistory.push('/login');
+	                    browserHistory.push('/CR/server/public/login');
 	                } else {
 	                    var histories = body.histories || [];
 	                    var isloadAll = histories.length < LOAD_MESSAGE_LIMIT;
@@ -27864,7 +27864,7 @@
 	        delete localStorage.token;
 	        socket.disconnect();
 	        socket.connect();
-	        browserHistory.push('/login');
+	        browserHistory.push('/CR/server/public/login');
 	    };
 	};
 	var reconnect = exports.reconnect = function reconnect(token) {
@@ -27929,7 +27929,7 @@
 	        return new Promise(function (resolve, reject) {
 	            socket.emit('getActiveList', token, function (body) {
 	                if (body.isError) {
-	                    browserHistory.push('/login');
+	                    browserHistory.push('/CR/server/public/login');
 	                } else {
 	                    dispatch(initRoomHistory(body.roomHistories));
 	                    dispatch(initPrivateHistory(body.privateHistories));

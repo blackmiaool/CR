@@ -147,7 +147,7 @@ export const getInitUserInfo = (info) => {
             socket.emit('getInfo',info, (body) => {
                 if(body.isError){
                     alert('用户已经在线');
-                    browserHistory.push('/login');
+                    browserHistory.push('/CR/server/public/login');
                 } else{
                     body.token = info.token;
                     dispatch(setUserInfo(body));
@@ -327,7 +327,7 @@ export const getRoomHistory = (info) => {
                         content: body.errMsg,
                         open: true
                     }));
-                    browserHistory.push('/login');
+                    browserHistory.push('/CR/server/public/login');
                 } else{
                     let histories = body.histories || [];
                     let isloadAll = histories.length < LOAD_MESSAGE_LIMIT;
@@ -672,7 +672,7 @@ export const logout = () => {
         delete localStorage.token;
         socket.disconnect();
         socket.connect();
-        browserHistory.push('/login');
+        browserHistory.push('/CR/server/public/login');
     }
 }
 export const reconnect = (token) => {
@@ -739,7 +739,7 @@ export const getActiveList = (token) => {
         return new Promise((resolve,reject) => {
             socket.emit('getActiveList',token,(body)=>{
                 if(body.isError){
-                    browserHistory.push('/login');
+                    browserHistory.push('/CR/server/public/login');
                 } else{
                     dispatch(initRoomHistory(body.roomHistories));
                     dispatch(initPrivateHistory(body.privateHistories));
