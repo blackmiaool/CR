@@ -98,9 +98,9 @@ class App extends React.Component {
                             transitionEnterTimeout = {500}
                             transitionLeaveTimeout = {500}
                     >    
-                        <Route exact path= '/CR' component= {Index}/>
-                        <Route path= '/CR/login' component= {Login} />
-                        <Route path= '/CR/signUp' component= {SignUp} />
+                        <Route exact path= '/CR/server/public/' component= {Index}/>
+                        <Route path= '/CR/server/public/login' component= {Login} />
+                        <Route path= '/CR/server/public/signUp' component= {SignUp} />
                     </ReactCSSTransitionGroup>
                     <Snackbar />
                 </div>
@@ -117,7 +117,7 @@ render(
         <div>
             <BrowserRouter>
                <div>         
-                   <Route path = '/CR' component = {App} >                                                
+                   <Route path = '/CR/server/public/' component = {App} >                                                
                    </Route>
                </div>
             </BrowserRouter>

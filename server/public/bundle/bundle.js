@@ -8185,9 +8185,9 @@
 	                            transitionEnterTimeout: 500,
 	                            transitionLeaveTimeout: 500
 	                        },
-	                        _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/CR', component: _index2.default }),
-	                        _react2.default.createElement(_reactRouterDom.Route, { path: '/CR/login', component: _Login2.default }),
-	                        _react2.default.createElement(_reactRouterDom.Route, { path: '/CR/signUp', component: _SignUp2.default })
+	                        _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/CR/server/public/', component: _index2.default }),
+	                        _react2.default.createElement(_reactRouterDom.Route, { path: '/CR/server/public/login', component: _Login2.default }),
+	                        _react2.default.createElement(_reactRouterDom.Route, { path: '/CR/server/public/signUp', component: _SignUp2.default })
 	                    ),
 	                    _react2.default.createElement(_Snackbar2.default, null)
 	                )
@@ -8214,7 +8214,7 @@
 	            _react2.default.createElement(
 	                'div',
 	                null,
-	                _react2.default.createElement(_reactRouterDom.Route, { path: '/CR', component: App })
+	                _react2.default.createElement(_reactRouterDom.Route, { path: '/CR/server/public/', component: App })
 	            )
 	        )
 	    )
