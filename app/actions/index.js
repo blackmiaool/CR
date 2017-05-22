@@ -7,7 +7,7 @@ let browserHistory;
 export function setHistory(history){
     browserHistory=history;
 }
-export const socket = io('http://localhost:3000',{'force new connection': true});
+export const socket = io('http://mdzzapp.com:3000',{'force new connection': true});
 
 export const LOAD_MESSAGE_LIMIT = 15;
 // page UI state

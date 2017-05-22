@@ -11,9 +11,12 @@ module.exports = {
     },
     watch:true,
     resolve:{
-        alias:{
-            //...
-        }
+        alias: {
+            'react/lib': 'rexcited/src/react/lib',
+            'react-dom/lib': 'rexcited/src/react-dom/lib',
+            react: 'rexcited/dist/react.js',
+            'react-dom': 'rexcited/dist/react-dom.js',            
+        },
     },
     module: {
         loaders: [
