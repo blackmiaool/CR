@@ -8185,9 +8185,9 @@
 	                            transitionEnterTimeout: 500,
 	                            transitionLeaveTimeout: 500
 	                        },
-	                        _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/CR/server/public/', component: _index2.default }),
-	                        _react2.default.createElement(_reactRouterDom.Route, { path: '/CR/server/public/login', component: _Login2.default }),
-	                        _react2.default.createElement(_reactRouterDom.Route, { path: '/CR/server/public/signUp', component: _SignUp2.default })
+	                        _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/', component: _index2.default }),
+	                        _react2.default.createElement(_reactRouterDom.Route, { path: '/login', component: _Login2.default }),
+	                        _react2.default.createElement(_reactRouterDom.Route, { path: '/signUp', component: _SignUp2.default })
 	                    ),
 	                    _react2.default.createElement(_Snackbar2.default, null)
 	                )
@@ -8214,7 +8214,7 @@
 	            _react2.default.createElement(
 	                'div',
 	                null,
-	                _react2.default.createElement(_reactRouterDom.Route, { path: '/CR/server/public/', component: App })
+	                _react2.default.createElement(_reactRouterDom.Route, { path: '/', component: App })
 	            )
 	        )
 	    )
@@ -27340,7 +27340,7 @@
 	            socket.emit('getInfo', info, function (body) {
 	                if (body.isError) {
 	                    alert('用户已经在线');
-	                    browserHistory.push('/CR/server/public/login');
+	                    browserHistory.push('/login');
 	                } else {
 	                    body.token = info.token;
 	                    dispatch(setUserInfo(body));
@@ -27517,7 +27517,7 @@
 	                        content: body.errMsg,
 	                        open: true
 	                    }));
-	                    browserHistory.push('/CR/server/public/login');
+	                    browserHistory.push('/login');
 	                } else {
 	                    var histories = body.histories || [];
 	                    var isloadAll = histories.length < LOAD_MESSAGE_LIMIT;
@@ -27864,7 +27864,7 @@
 	        delete localStorage.token;
 	        socket.disconnect();
 	        socket.connect();
-	        browserHistory.push('/CR/server/public/login');
+	        browserHistory.push('/login');
 	    };
 	};
 	var reconnect = exports.reconnect = function reconnect(token) {
@@ -27929,7 +27929,7 @@
 	        return new Promise(function (resolve, reject) {
 	            socket.emit('getActiveList', token, function (body) {
 	                if (body.isError) {
-	                    browserHistory.push('/CR/server/public/login');
+	                    browserHistory.push('/login');
 	                } else {
 	                    dispatch(initRoomHistory(body.roomHistories));
 	                    dispatch(initPrivateHistory(body.privateHistories));
