@@ -48361,9 +48361,7 @@
 	    }, {
 	        key: 'pullStart',
 	        value: function pullStart(startY) {
-	            console.log('pullStart', this.state.loadingState, this.messageArea.scrollTop);
 	            if (this.messageArea.scrollTop === 0 && this.state.loadingState !== 'loadedAll' && this.state.loadingState !== 'loading') {
-	                console.log('pullStart true');
 	                this.setState({
 	                    needScroll: false,
 	                    isTouching: true,
@@ -48385,7 +48383,6 @@
 	    }, {
 	        key: 'pulling',
 	        value: function pulling(e, pageY) {
-	            console.log('pulling', this.state.isTouching, e, pageY, this.state.loadingHeight);
 	            if (this.state.isTouching) {
 	                var pHeight = this.state.loadingHeight || 1,
 	                    nHeight = pageY - this.state.startY,
@@ -48406,7 +48403,6 @@
 	    }, {
 	        key: 'handleTouchMove',
 	        value: function handleTouchMove(e) {
-	            console.log(e);
 	            this.pulling(e, e.touches[0].pageY);
 	        }
 	    }, {
@@ -48417,7 +48413,6 @@
 	    }, {
 	        key: 'pullEnd',
 	        value: function pullEnd() {
-	            console.trace('pullEnd');
 	            if (this.state.isValid) {
 	                this.setState({
 	                    isTouching: false,
@@ -48436,14 +48431,11 @@
 	    }, {
 	        key: 'handleTouchEnd',
 	        value: function handleTouchEnd(e) {
-	            //        console.log('handleTouchEnd')
 	            this.pullEnd();
 	        }
 	    }, {
 	        key: 'handleMouseUp',
 	        value: function handleMouseUp(e) {
-	            //        console.log('handleMouseUp')
-	            //        console.log(e.target)
 	            this.pullEnd();
 	        }
 	    }, {
