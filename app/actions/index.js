@@ -672,6 +672,7 @@ export const logout = () => {
         delete localStorage.token;
         socket.disconnect();
         socket.connect();
+        console.log(`browserHistory.push('/login');`);
         browserHistory.push('/login');
     }
 }

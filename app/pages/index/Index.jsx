@@ -51,6 +51,9 @@ import {
 } from '../../actions'
 import store from '../../store';
 class Index extends React.Component{
+    componentWillUnmount(){
+        console.log('index componentWillUnmount')
+    }
     constructor(props){
         super(props);
         
@@ -93,7 +96,7 @@ class Index extends React.Component{
                 }
             }
         });
-        socket.on('newMessage', (message) => {
+        socket.on('newMessage', (message) => {            
             const state = store.getState().toJS();
             if (message.type === 'textMessage') {
                 if (!cr.filterMsg(message.content)) {
@@ -108,6 +111,7 @@ class Index extends React.Component{
                     reg = new RegExp('@' + state.userState.nickname, 'g');
                 store.dispatch(addMessage(message));
                 state.userState.curRoom === message.room ? null : store.dispatch(addCount(message.room));
+                
                 if (!state['activeList'][message.room]) {
                     store.dispatch(addActiveItem({
                         roomName: message.room,
@@ -243,7 +247,7 @@ class Index extends React.Component{
             });
         }
     }
-    componentDidMount() {
+    componentDidMount() {        
         let handle = null;
         let rightBox = this.refs.rightBox;
         window.addEventListener('resize',(event) => {

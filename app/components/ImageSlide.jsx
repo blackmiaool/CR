@@ -42,6 +42,7 @@ class ImageSlide extends React.Component{
     render(){
         let { isShowSlide, slideArr } = this.props.imageSlide.toJS(),
             expressions = this.props.expressions.toJS();
+        
         if(slideArr[1] && slideArr[1].image[0] === '{'){
             try{
                 let src = JSON.parse(slideArr[1].image);

@@ -315,6 +315,7 @@ class ChatArea extends React.Component {
         }
     }
     render(){
+        console.log('render chatarea')
         let user = this.props.user.toJS();
         let messages = this.props.messages.toJS() || [];
         if(!api.timestamp && messages[messages.length -1]){

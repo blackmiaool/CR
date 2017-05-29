@@ -82,7 +82,7 @@ notification.requestPermission();
 //     // 用户状态暂定为logout、enter、offline、online，其中offline为断线重连时需要重新init，并标记为online状态
 //         console.log('connect: ',state.userState.nickname);
 // })
-
+ 
 class App extends React.Component {
     constructor(props) {
         super(props);

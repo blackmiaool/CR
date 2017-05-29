@@ -13651,13 +13651,15 @@
 	    var instance = arguments[5];
 
 	    if (showLog) {
-	        console.log('oldchildren', old);
-	        console.log('getChildren', parent, children, old, owner, context);
+	        console.log('getChildren', parent, children, old, owner, context, ccc);
 	    }
-	    ccc++;
 	    var cc = ccc;
+	    ccc++;
 
 	    if (!children) {
+	        if (showLog) {
+	            console.log('no children', cc);
+	        }
 	        return {
 	            children: {}
 	        };
@@ -13726,7 +13728,8 @@
 	                    if (old[key] instanceof ReactCompositeComponentWrapper) {
 
 	                        if (child && old[key]._currentElement.type === child.type) {
-	                            if (equals(old[key]._currentElement.props, child.props)) {
+	                            if (equals(old[key]._currentElement.props, child.props) && !old[key].isContextChanged(context)) {
+	                                //TODO
 	                                lastNode = old[key]._hostNode;
 	                            } else {
 	                                lastNode = old[key].updateProps(child.props, context);
@@ -13766,9 +13769,7 @@
 	    }
 	    if (showLog) {
 
-	        if (Object.keys(_renderedChildren).length == 2) {
-	            console.log('_renderedChildren', _renderedChildren, instance, arguments);
-	        }
+	        console.log('_renderedChildren', _renderedChildren, instance, arguments, cc);
 	    }
 
 	    return {
@@ -13855,6 +13856,16 @@
 	                    ref.call(owner ? owner._instance : undefined, this._instance);
 	                }
 	                this.previousRef = ref;
+	            }
+	        }
+	    }, {
+	        key: 'handleRemove',
+	        value: function handleRemove() {
+	            this.isMounted = false;
+	            if (this._instance.componentWillUnmount) {
+	                asyncSetState();
+	                this._instance.componentWillUnmount();
+	                this.handleStateQueue(this._instance.props);
 	            }
 	        }
 	    }]);
@@ -13968,11 +13979,13 @@
 	    }, {
 	        key: 'getSelfContext',
 	        value: function getSelfContext() {
-	            this._context = this._context || {};
+	            var context = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._context;
+
+	            //        this._context = this._context || {}
 	            var contextThis = {};
 	            if (this._currentElement.type.contextTypes) {
 	                for (var i in this._currentElement.type.contextTypes) {
-	                    contextThis[i] = this._context[i];
+	                    contextThis[i] = context[i];
 	                }
 	            }
 	            return contextThis;
@@ -13981,6 +13994,12 @@
 	        key: 'updateSelfContext',
 	        value: function updateSelfContext() {
 	            this._instance.context = this.getSelfContext();
+	        }
+	    }, {
+	        key: 'isContextChanged',
+	        value: function isContextChanged(context) {
+	            var ret = !equals(this._instance.context, this.getSelfContext(context));
+	            return ret;
 	        }
 	    }, {
 	        key: 'create',
@@ -14074,16 +14093,6 @@
 	                console.log("render end", element);
 	            }
 	            return element;
-	        }
-	    }, {
-	        key: 'remove',
-	        value: function remove() {
-	            this.isMounted = false;
-	            if (this._instance.componentWillUnmount) {
-	                asyncSetState();
-	                this._instance.componentWillUnmount();
-	                this.handleStateQueue(this._instance.props);
-	            }
 	        }
 	    }, {
 	        key: 'handleStateQueue',
@@ -14192,7 +14201,13 @@
 	                    context: this.getContext()
 	                });
 	                renderingComponentStack.pop();
+	                var preHostNode = this._hostNode;
 	                this._hostNode = result;
+	                var wrapper = this;
+	                while (wrapper._currentElement._owner && wrapper._currentElement._owner._hostNode === preHostNode) {
+	                    wrapper = wrapper._currentElement._owner;
+	                    wrapper._hostNode = result;
+	                }
 
 	                this.handleAfterRenderQueue();
 
@@ -14208,6 +14223,16 @@
 	            }
 	            ReactCompositeComponentWrapper.afterUpdate();
 	            return result;
+	        }
+	    }, {
+	        key: 'remove',
+	        value: function remove() {
+	            if (!this.isMounted) {
+	                return;
+	            }
+
+	            this.handleRemove();
+	            this._hostNode[internalInstanceKey].removeUntil(this);
 	        }
 	    }], [{
 	        key: 'handleDirty',
@@ -14290,8 +14315,43 @@
 	    }
 
 	    _createClass(ReactDOMComponent, [{
+	        key: 'removeUntil',
+	        value: function removeUntil(wrapper) {
+	            var parent = getOwnerOnSameDom(this._hostNode);
+	            parent.some(function (owner) {
+	                if (owner === wrapper) {
+	                    return true;
+	                }
+	                owner.remove();
+	                return false;
+	            });
+	        }
+	    }, {
 	        key: 'remove',
-	        value: function remove() {}
+	        value: function remove() {
+	            if (!this.isMounted) {
+	                return;
+	            }
+	            console.log('remove', this._hostNode);
+	            this.handleRemove();
+
+	            function handleChild(child) {
+
+	                console.log('child', child);
+	                child && child.remove && child.remove();
+	                var arr = getOwnerOnSameDom(child._hostNode);
+	                arr.forEach(function (owner) {
+	                    owner.remove();
+	                });
+	            }
+
+	            //        const arr = getOwnerOnSameDom(this._hostNode);
+	            //        arr.forEach(function (owner) {
+	            //            owner.remove();
+	            //        });
+
+	            _react2.default.Children.forEach(this._renderedChildren, handleChild);
+	        }
 	    }]);
 
 	    return ReactDOMComponent;
@@ -14371,7 +14431,7 @@
 
 	function isReactComponent(type) {
 
-	    return type.prototype instanceof _react2.default.Component || type.prototype.render;
+	    return type.prototype instanceof _react2.default.Component || type.prototype && type.prototype.render;
 	}
 
 	function findOwnerUntil(owner, top) {
@@ -14397,6 +14457,16 @@
 	    return owner;
 	}
 
+	function getOwnerOnSameDom(dom) {
+	    var wrapper = dom[internalInstanceKey];
+	    var ret = [];
+	    do {
+	        ret.push(wrapper);
+	        wrapper = wrapper._currentElement && wrapper._currentElement._owner;
+	    } while (wrapper && wrapper._hostNode === dom);
+	    return ret;
+	}
+
 	function update(dom, element) {
 	    var _ref4 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
 	        componentRef = _ref4.componentRef,
@@ -14406,14 +14476,32 @@
 	        console.log('update', dom, element, context, componentRef);
 	    }
 	    var forceRender = false;
-	    if (!element && dom) {
-	        //dom to comment
+	    var wrapper = dom && dom[internalInstanceKey];
+	    var element0 = wrapper._currentElement;
+
+	    if (!element) {
+	        //dom to comment        
+	        if (dom.nodeName === '#comment') {
+	            return dom;
+	        } else {
+	            var arr = getOwnerOnSameDom(dom);
+	            arr[arr.length - 1].remove();
+	        }
 	        if (showLog) {
 	            console.log('dom to comment');
 	        }
 	        var comment = document.createComment("react-empty: ?");
 	        dom.parentElement && dom.parentElement.replaceChild(comment, dom);
-	        comment[internalInstanceKey] = dom[internalInstanceKey];
+	        var _wrapper = dom[internalInstanceKey];
+	        //        comment[internalInstanceKey] = wrapper;
+	        if (componentRef) {
+	            _wrapper._currentElement._owner = componentRef._reactInternalInstance;
+	        }
+
+	        //        comment[internalInstanceKey] = 
+	        getOwnerOnSameDom(dom).forEach(function (owner) {
+	            owner._hostNode = comment;
+	        });
 	        return comment;
 	    }
 
@@ -14421,8 +14509,6 @@
 	        //comment, force render
 	        forceRender = true;
 	    }
-	    var wrapper = dom[internalInstanceKey];
-	    var element0 = wrapper._currentElement;
 
 	    var ownerType = void 0;
 	    var owner = void 0;
@@ -14438,16 +14524,26 @@
 	    }
 
 	    function createAndReplace() {
+	        if (showLog) {
+	            console.log('createAndReplace');
+	        }
 	        dom[internalInstanceKey].remove && dom[internalInstanceKey].remove();
 	        var newDom = _create(element, {
 	            context: context,
 	            owner: (componentRef || {})._reactInternalInstance
 	        });
+	        //        console.trace('createAndReplace', newDom, dom)
+	        //        if (newDom.nodeName === '#comment' && dom.nodeName === '#comment') {
+	        //
+	        //        } else {
 	        if (dom.parentElement) {
 	            dom.parentElement.replaceChild(newDom, dom);
 	        }
+	        //        }
+
 	        return newDom;
 	    }
+
 	    if (isHost) {
 	        if (componentRef) {
 	            var _owner = element0._owner;
@@ -14533,9 +14629,6 @@
 
 	        var newChildren = getChildren(dom, element.props.children, oldChildren, owner, context).children;
 
-	        if (showLog) {
-	            console.log('oldChildren', oldChildren);
-	        }
 	        for (var i in oldChildren) {
 	            if (!newChildren[i] && oldChildren[i]) {
 
@@ -19218,6 +19311,13 @@
 	var Index = function (_React$Component) {
 	    _inherits(Index, _React$Component);
 
+	    _createClass(Index, [{
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {
+	            console.log('index componentWillUnmount');
+	        }
+	    }]);
+
 	    function Index(props) {
 	        _classCallCheck(this, Index);
 
@@ -19277,6 +19377,7 @@
 	                    reg = new RegExp('@' + state.userState.nickname, 'g');
 	                _store2.default.dispatch((0, _actions.addMessage)(message));
 	                state.userState.curRoom === message.room ? null : _store2.default.dispatch((0, _actions.addCount)(message.room));
+
 	                if (!state['activeList'][message.room]) {
 	                    _store2.default.dispatch((0, _actions.addActiveItem)({
 	                        roomName: message.room,
@@ -28036,6 +28137,7 @@
 	        delete localStorage.token;
 	        socket.disconnect();
 	        socket.connect();
+	        console.log('browserHistory.push(\'/login\');');
 	        browserHistory.push('/login');
 	    };
 	};
@@ -48552,6 +48654,7 @@
 	        value: function render() {
 	            var _this5 = this;
 
+	            console.log('render chatarea');
 	            var user = this.props.user.toJS();
 	            var messages = this.props.messages.toJS() || [];
 	            if (!_plugins2.default.timestamp && messages[messages.length - 1]) {
